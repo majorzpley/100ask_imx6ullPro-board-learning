@@ -1,0 +1,13 @@
+arm/filter_neon.lo: arm/filter_neon.S \
+ /home/majorzpley/100ask_imx6ull_learning/100ask_imx6ull-sdk/ToolChain/arm-buildroot-linux-gnueabihf_sdk-buildroot/arm-buildroot-linux-gnueabihf/sysroot/usr/include/stdc-predef.h \
+ arm/../pngpriv.h config.h arm/../pnglibconf.h arm/../png.h
+
+/home/majorzpley/100ask_imx6ull_learning/100ask_imx6ull-sdk/ToolChain/arm-buildroot-linux-gnueabihf_sdk-buildroot/arm-buildroot-linux-gnueabihf/sysroot/usr/include/stdc-predef.h:
+
+arm/../pngpriv.h:
+
+config.h:
+
+arm/../pnglibconf.h:
+
+arm/../png.h:

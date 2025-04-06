@@ -1,0 +1,154 @@
+//? 实现一个LED驱动程序，支持多个LED
+//? 1.实现了read/write/open/release函数
+#include "led_opr.h"
+#include <asm/uaccess.h>
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/export.h>
+#include <linux/fs.h>
+#include <linux/init.h>
+#include <linux/kdev_t.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/printk.h>
+#include <linux/stddef.h>
+#include <linux/types.h>
+
+/*
+ * 1.确定主设备号
+ */
+static int major = 0;
+static struct class *led_class;
+struct led_operations *p_led_opr;
+
+/*
+ *3.实现对应的open/release/read/write等函数，填入file_operations结构体
+ */
+static ssize_t led_drv_read(struct file *file, char __user *buf, size_t size,
+                            loff_t *offset) {
+  char level;
+  int err;
+  struct inode *inode = file_inode(file);
+  int minor = iminor(inode); // 获取次设备号
+                             //
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+
+  level = p_led_opr->getLevel(minor);
+  err = copy_to_user(buf, &level, 1);
+  return 1;
+}
+
+/*
+-write(fd,&val,1)
+*/
+static ssize_t led_drv_write(struct file *file, const char __user *buf,
+                             size_t size, loff_t *offset) {
+  int err;
+  char status;
+  struct inode *inode = file_inode(file);
+  int minor = iminor(inode); // 获取次设备号
+
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+  err = copy_from_user(&status, buf, 1);
+
+  /*
+   *根据次设备号和status控制LED
+   */
+  p_led_opr->ctl(minor, status);
+  return 1;
+}
+
+static int led_drv_open(struct inode *inode, struct file *file) {
+
+  int minor = iminor(inode); // 得到次设备号
+
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+  /*
+   *根据次设备号初始化LED
+   */
+  p_led_opr->init(minor);
+  return 0;
+}
+
+static int led_drv_close(struct inode *inode, struct file *file) {
+
+  int minor = iminor(inode); // 得到次设备号
+                             //
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+  /*
+   *取消映射物理地址
+   */
+  p_led_opr->unmap(minor);
+  return 0;
+}
+
+/*
+ *2.定义自己的file_operations结构体
+ */
+static struct file_operations led_drv_fops = {.owner = THIS_MODULE,
+                                              .open = led_drv_open,
+                                              .release = led_drv_close,
+                                              .read = led_drv_read,
+                                              .write = led_drv_write};
+
+/*
+ *4.把 file_operations 结构体告诉内核：注册驱动程序
+ */
+
+/*
+ *5.谁来注册驱动程序啊？得有一个入口函数：安装驱动程序时，就会去调用这个入口函数
+ */
+static int __init led_drv_init(void) {
+  int err;
+  int i;
+
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+  major = register_chrdev(0, "majorzpley_led",
+                          &led_drv_fops); //>/dev/majorzpley_led
+
+  led_class = class_create(THIS_MODULE, "majorzpley_led_class");
+  err = PTR_ERR(led_class);
+  if (IS_ERR(led_class)) {
+    printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+    unregister_chrdev(major, "majorzpley_led");
+    return -1;
+  }
+
+  // todo 获取此结构体指针
+  p_led_opr = get_board_led_opr();
+
+  for (i = 0; i < p_led_opr->num; i++) {
+    /*
+     * dev / majorzpley_led0/1,...
+     */
+    device_create(led_class, NULL, MKDEV(major, i), NULL, "majorzpley_led%d",
+                  i);
+  }
+
+  return 0;
+}
+
+/*
+ *6.有入口函数就应该有出口函数：卸载驱动程序时，出口函数调用unregister_chrdev
+ */
+static void __exit led_drv_exit(void) {
+
+  int i;
+  printk("%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
+
+  for (i = 0; i < p_led_opr->num; i++) {
+    /*
+     * dev / majorzpley_led0/1,...
+     */
+    device_destroy(led_class, MKDEV(major, i));
+  }
+  class_destroy(led_class);
+  unregister_chrdev(major, "majorzpley_led");
+}
+
+/*
+ *7.其他完善：提供设备信息，自动创建设备节点：class_create, device_create
+ */
+module_init(led_drv_init);
+module_exit(led_drv_exit);
+MODULE_LICENSE("GPL");

@@ -1,0 +1,57 @@
+//? 使用poll方式测试SR501驱动
+#include <fcntl.h>
+#include <poll.h>
+#include <signal.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+static int fd;
+
+/*
+ * ./button_test /dev/sr501
+ *
+ */
+int main(int argc, char **argv) {
+  int val;
+  struct pollfd fds[1];
+  int timeout_ms = 5000;
+  int ret;
+  int flags;
+
+  int i;
+
+  /* 1. 判断参数 */
+  if (argc != 2) {
+    printf("Usage: %s <dev>\n", argv[0]);
+    return -1;
+  }
+
+  /* 2. 打开文件 */
+  fd = open(argv[1], O_RDWR);
+  if (fd == -1) {
+    perror("open");
+    return -1;
+  }
+
+  fds[0].fd = fd;
+  fds[0].events = POLLIN;
+
+  while (1) {
+    ret = poll(fds, 1, timeout_ms);
+    if (ret == 1 && (fds[0].revents & POLLIN)) {
+      if (read(fd, &val, 4) == 4)
+        printf("get button: 0x%x\n", val);
+      else
+        printf("get button: -1\n");
+    } else {
+      printf("timerout/err!\n");
+    }
+  }
+
+  close(fd);
+
+  return 0;
+}

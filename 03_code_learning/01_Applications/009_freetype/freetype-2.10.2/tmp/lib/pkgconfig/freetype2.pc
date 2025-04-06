@@ -1,0 +1,14 @@
+prefix=/home/majorzpley/100ask_imx6ull_learning/03_code_learning/009_freetype/freetype-2.10.2/tmp
+exec_prefix=/home/majorzpley/100ask_imx6ull_learning/03_code_learning/009_freetype/freetype-2.10.2/tmp
+libdir=/home/majorzpley/100ask_imx6ull_learning/03_code_learning/009_freetype/freetype-2.10.2/tmp/lib
+includedir=/home/majorzpley/100ask_imx6ull_learning/03_code_learning/009_freetype/freetype-2.10.2/tmp/include
+
+Name: FreeType 2
+URL: https://freetype.org
+Description: A free, high-quality, and portable font engine.
+Version: 23.2.17
+Requires:
+Requires.private: zlib, libpng
+Libs: -L${libdir} -lfreetype
+Libs.private: -lbz2
+Cflags: -I${includedir}/freetype2

@@ -1,0 +1,14 @@
+// 将此设备节点复制到kernei目录下的 arch/arm/boot/dts/100ask_imx6ull-14x14.dts中
+#define GROUP_PIN(g,p) ((g<<16)|(p))
+
+/{
+	majorzpley_led@0 {
+		compatible = "majorzpley,led_drv";
+		pin = <GROUP_PIN(3,1)>;
+	};
+	
+	majorzpley_led@1 {
+		compatible = "majorzpley,led_drv";
+		pin = <GROUP_PIN(5,8)>;
+	};
+};

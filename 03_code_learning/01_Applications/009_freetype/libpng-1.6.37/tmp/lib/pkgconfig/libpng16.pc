@@ -1,0 +1,12 @@
+prefix=/home/majorzpley/100ask_imx6ull_learning/03_code_learning/009_freetype/libpng-1.6.37/tmp
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.37
+Requires: zlib
+Libs: -L${libdir} -lpng16
+Libs.private: -lm -lz -lm 
+Cflags: -I${includedir}

@@ -1,0 +1,15 @@
+Pins_Tool_for_i.MX_Processors_v6_x64.exe 文件太大了,
+无法上传到GIT。
+
+可以去百度网盘下载,
+方法如下:
+1. 打开 https://download.100ask.net/
+2. 再左侧找到"100ASK_IMX6ULL_PRO开发板"或"100ASK_IMX6ULL_MINI开发板", 点击进去可以找到"开发板配套资料"的百度网盘资料
+3. 打开网盘资料: "02_开发工具\【IMX】6ull引脚复用配置工具"
+4. 里面有2个文件:
+Pins_Tool_for_i.MX_Processors_v6_x64.exe
+MCIMX6Y2xxx08.mex
+5. 把它们转存到你自己的网盘, 再用百度网盘软件下载。
+   建议不要用浏览器直接下载, 容易出错。
+   
+
